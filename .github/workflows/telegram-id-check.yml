@@ -1,0 +1,77 @@
+name: TELEGRAM ID CHECK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  telegram-check:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+
+    steps:
+      - name: Check Telegram bot and discover chat id
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os, sys, requests
+
+          token = os.getenv("TELEGRAM_BOT_TOKEN","").strip()
+          if not token:
+              print("❌ TELEGRAM_BOT_TOKEN non configurato")
+              sys.exit(1)
+
+          base = f"https://api.telegram.org/bot{token}"
+
+          me = requests.get(base + "/getMe", timeout=20)
+          me.raise_for_status()
+          data = me.json()
+          if not data.get("ok"):
+              print("❌ Token Telegram non valido")
+              sys.exit(1)
+
+          bot = data["result"]
+          print(f"✅ Bot Telegram valido: @{bot.get('username','?')}")
+
+          upd = requests.get(base + "/getUpdates", timeout=20)
+          upd.raise_for_status()
+          data = upd.json()
+
+          chat_ids = []
+          for u in data.get("result", []):
+              for key in ("message","edited_message","channel_post","my_chat_member"):
+                  o = u.get(key)
+                  if isinstance(o, dict):
+                      c = o.get("chat")
+                      if isinstance(c, dict) and c.get("id") is not None:
+                          chat_ids.append(str(c["id"]))
+
+          if not chat_ids:
+              print("❌ Nessun chat ID trovato.")
+              print("Apri il bot su Telegram, premi START e inviagli un messaggio, poi rilancia questo workflow.")
+              sys.exit(2)
+
+          chat_id = chat_ids[-1]
+          print("✅ Chat ID trovato automaticamente")
+          print(f"chat_id={chat_id}")
+
+          msg = (
+              "✅ NEXT GOAL ALERT ML collegato\n"
+              "GitHub Actions → Telegram OK\n"
+              "Chat ID rilevato automaticamente."
+          )
+
+          r = requests.post(
+              base + "/sendMessage",
+              json={"chat_id": chat_id, "text": msg},
+              timeout=20
+          )
+          r.raise_for_status()
+          out = r.json()
+
+          if not out.get("ok"):
+              print("❌ Invio Telegram fallito")
+              sys.exit(3)
+
+          print("✅ Messaggio test inviato su Telegram")
+          PY

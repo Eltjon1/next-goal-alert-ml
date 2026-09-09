@@ -1,0 +1,30 @@
+name: STEP31 Daily Range xG5 Resolver
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step31_daily_range_xg5.py'
+      - '.github/workflows/step31-daily-range-xg5.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step31_daily_range_xg5.py
+
+      - name: Test daily-range xG5 resolver
+        run: python step31_daily_range_xg5.py

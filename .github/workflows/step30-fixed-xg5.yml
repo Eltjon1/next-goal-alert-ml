@@ -1,0 +1,30 @@
+name: STEP30 Fixed FotMob xG5 Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step30_fixed_xg5.py'
+      - '.github/workflows/step30-fixed-xg5.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step30_fixed_xg5.py
+
+      - name: Run fixed xG5 test
+        run: python step30_fixed_xg5.py

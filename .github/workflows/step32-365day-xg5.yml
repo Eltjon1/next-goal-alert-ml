@@ -1,0 +1,31 @@
+name: STEP32 365-Day xG5 Resolver
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step32_365day_xg5.py'
+      - '.github/workflows/step32-365day-xg5.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step32_365day_xg5.py
+
+      - name: Test 365-day xG5 resolver
+        run: python step32_365day_xg5.py

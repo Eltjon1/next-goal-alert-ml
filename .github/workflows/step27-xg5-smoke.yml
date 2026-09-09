@@ -1,0 +1,33 @@
+name: STEP27 xG5 Smoke Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step26_runtime.py'
+      - '.github/workflows/step27-xg5-smoke.yml'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step26_runtime.py
+
+      - name: Run one STEP27 scan
+        env:
+          SCAN_EVERY_SECONDS: '60'
+          MIN_ALERT_LEVEL: 'BASE'
+        run: python step26_runtime.py

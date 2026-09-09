@@ -1,0 +1,28 @@
+name: STEP37 Coverage Expanded GoalFT
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step37_coverage_goalft.py'
+      - 'step36_goalft_targets.csv'
+      - '.github/workflows/step37-coverage-goalft.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step32_365day_xg5.py
+          python -m py_compile step37_coverage_goalft.py
+      - name: Run STEP37
+        run: python step37_coverage_goalft.py

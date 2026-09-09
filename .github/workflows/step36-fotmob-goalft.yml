@@ -1,0 +1,28 @@
+name: STEP36 FotMob GoalFT Validation
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step36_fotmob_goalft_validation.py'
+      - 'step36_goalft_targets.csv'
+      - '.github/workflows/step36-fotmob-goalft.yml'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step32_365day_xg5.py
+          python -m py_compile step36_fotmob_goalft_validation.py
+      - name: Validate frozen FotMob thresholds vs goal_before_ft
+        run: python step36_fotmob_goalft_validation.py

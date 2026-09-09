@@ -1,0 +1,31 @@
+name: STEP28 Finished Matches xG5 Test
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step28_finished_xg5_test.py'
+      - '.github/workflows/step28-finished-xg5.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Compile STEP28
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step26_runtime.py
+          python -m py_compile step28_finished_xg5_test.py
+
+      - name: Test rolling xG5 on recent finished matches
+        run: python step28_finished_xg5_test.py

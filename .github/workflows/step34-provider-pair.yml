@@ -1,0 +1,28 @@
+name: STEP34 Understat vs FotMob xG5
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step34_provider_pair.py'
+      - 'step34_understat_reference.csv'
+      - '.github/workflows/step34-provider-pair.yml'
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step32_365day_xg5.py
+          python -m py_compile step34_provider_pair.py
+      - name: Compare paired xG5
+        run: python step34_provider_pair.py

@@ -1,0 +1,25 @@
+name: STEP33 xG5 Provider Audit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step33_provider_audit.py'
+      - '.github/workflows/step33-provider-audit.yml'
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step32_365day_xg5.py
+          python -m py_compile step33_provider_audit.py
+      - name: Run provider audit
+        run: python step33_provider_audit.py

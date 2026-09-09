@@ -1,0 +1,30 @@
+name: STEP29 FotMob xG5 Diagnostic
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step29_fotmob_diag.py'
+      - '.github/workflows/step29-fotmob-diag.yml'
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Compile
+        run: |
+          python -m py_compile scanner.py
+          python -m py_compile step29_fotmob_diag.py
+
+      - name: Run FotMob structure diagnostic
+        run: python step29_fotmob_diag.py

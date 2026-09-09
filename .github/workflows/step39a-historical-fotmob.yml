@@ -1,0 +1,34 @@
+name: STEP39A Historical FotMob Native Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'step39a_build_historical_fotmob.py'
+      - 'step39a_historical_alerts.csv'
+      - '.github/workflows/step39a-historical-fotmob.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Compile
+        run: |
+          python -m py_compile step32_365day_xg5.py
+          python -m py_compile step39a_build_historical_fotmob.py
+      - name: Build historical FotMob-native dataset
+        run: python step39a_build_historical_fotmob.py
+      - name: Upload STEP39A dataset
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: step39a-fotmob-native-historical
+          path: step39a_fotmob_native_historical.csv
+          if-no-files-found: warn
